@@ -1,0 +1,3 @@
+[EventHub]
+Namespace = "<namespace_name>"
+Name = "<instance_name>"
