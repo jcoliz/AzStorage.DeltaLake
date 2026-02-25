@@ -37,6 +37,18 @@ module roleAssignment '../../AzDeploy.Bicep/EventHub/dataownerrole.bicep' = if (
   }
 }
 
+// Provision storage account for data lake
+module storageAccount '../../AzDeploy.Bicep/Storage/storage.bicep' = {
+  name: 'storageAccount'
+  params: {
+    suffix: suffix
+    location: location
+    isHnsEnabled: true
+  }
+}
+
 output eventHubNamespace string = eventHub.outputs.namespace
 output eventHubName string = eventHub.outputs.hub
 output serviceBusEndpoint string = eventHub.outputs.serviceBusEndpoint
+output storageAccountName string = storageAccount.outputs.storageName
+output storageAccountDfsEndpoint string = storageAccount.outputs.storageEndpoint.dfs

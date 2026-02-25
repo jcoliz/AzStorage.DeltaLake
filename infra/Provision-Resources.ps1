@@ -27,10 +27,17 @@ try {
     $eventHubName = $result.properties.outputs.eventHubName.value
     $serviceBusEndpoint = $result.properties.outputs.serviceBusEndpoint.value
 
+    $storageAccountName = $result.properties.outputs.storageAccountName.value
+    $storageAccountDfsEndpoint = $result.properties.outputs.storageAccountDfsEndpoint.value
+
     Write-Output "[EventHub]"
     Write-Output "Namespace = ""$eventHubNamespace"""
     Write-Output "Name = ""$eventHubName"""
     Write-Output "ServiceBusEndpoint = ""$serviceBusEndpoint"""
+
+    Write-Output "[Storage]"
+    Write-Output "AccountName = ""$storageAccountName"""
+    Write-Output "DfsEndpoint = ""$storageAccountDfsEndpoint"""
 }
 catch {
     Write-Error "Failed to push containers: $_"
