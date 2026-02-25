@@ -39,3 +39,4 @@ module roleAssignment '../../AzDeploy.Bicep/EventHub/dataownerrole.bicep' = if (
 
 output eventHubNamespace string = eventHub.outputs.namespace
 output eventHubName string = eventHub.outputs.hub
+output serviceBusEndpoint string = eventHub.outputs.serviceBusEndpoint

@@ -1,2 +1,6 @@
 <Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/EventHubWriter/">
+    <Project Path="src/EventHubWriter/DeltaLake.EventHubWriter.csproj" />
+  </Folder>
 </Solution>

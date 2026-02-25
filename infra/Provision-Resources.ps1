@@ -25,10 +25,12 @@ try {
 
     $eventHubNamespace = $result.properties.outputs.eventHubNamespace.value
     $eventHubName = $result.properties.outputs.eventHubName.value
+    $serviceBusEndpoint = $result.properties.outputs.serviceBusEndpoint.value
 
     Write-Output "[EventHub]"
     Write-Output "Namespace = ""$eventHubNamespace"""
-    Write-Output "Name = ""$eventHubName"""    
+    Write-Output "Name = ""$eventHubName"""
+    Write-Output "ServiceBusEndpoint = ""$serviceBusEndpoint"""
 }
 catch {
     Write-Error "Failed to push containers: $_"
