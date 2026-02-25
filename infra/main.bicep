@@ -19,7 +19,7 @@ param principalId string = ''
 param principalType string = 'User' // Can be User, Group, or ServicePrincipal
 
 // Provision event hub
-module eventHub '../../AzDeploy.Bicep/EventHub/ehub.bicep' = {
+module eventHub './AzDeploy.Bicep/EventHub/ehub.bicep' = {
   name: 'eventHub'
   params: {
     suffix: suffix
@@ -28,7 +28,7 @@ module eventHub '../../AzDeploy.Bicep/EventHub/ehub.bicep' = {
 }
 
 // Provision role assignment for Event Hub access
-module roleAssignment '../../AzDeploy.Bicep/EventHub/dataownerrole.bicep' = if (principalId != '') {
+module roleAssignment './AzDeploy.Bicep/EventHub/dataownerrole.bicep' = if (principalId != '') {
   name: 'roleAssignment'
   params: {
     eventHubName: eventHub.outputs.namespace
@@ -38,7 +38,7 @@ module roleAssignment '../../AzDeploy.Bicep/EventHub/dataownerrole.bicep' = if (
 }
 
 // Provision storage account for data lake
-module storageAccount '../../AzDeploy.Bicep/Storage/storage.bicep' = {
+module storageAccount './AzDeploy.Bicep/Storage/storage.bicep' = {
   name: 'storageAccount'
   params: {
     suffix: suffix
@@ -48,7 +48,7 @@ module storageAccount '../../AzDeploy.Bicep/Storage/storage.bicep' = {
 }
 
 // Provision storage container for data lake
-module storageContainer '../../AzDeploy.Bicep/Storage/storcontainer.bicep' = {
+module storageContainer './AzDeploy.Bicep/Storage/storcontainer.bicep' = {
   name: 'storageContainer'
   params: {
     account: storageAccount.outputs.storageName
