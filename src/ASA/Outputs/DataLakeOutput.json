@@ -1,0 +1,24 @@
+{
+    "Name": "DataLakeOutput",
+    "DataSourceType": "Blob Storage",
+    "BlobStorageProperties": {
+        "StorageAccounts": [
+            {
+                "AccountName": "storage000avcuqinl3n2ne",
+                "AccountKey": "********"
+            }
+        ],
+        "Container": "datalake",
+        "PathPattern": "",
+        "DateFormat": "yyyy/MM/dd",
+        "TimeFormat": "HH",
+        "AuthenticationMode": "ConnectionString"
+    },
+    "DataSourceCredentialDomain": "bdf8720a-71dc-4a74-9e67-e6d8d56eec88.StreamAnalystics",
+    "Serialization": {
+        "Type": "Parquet"
+    },
+    "MinimumRows": 3,
+    "MaximumTime": "00:00:10",
+    "ScriptType": "Output"
+}
