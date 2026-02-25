@@ -29,6 +29,9 @@ EventHubProducerClient producerClient = new EventHubProducerClient(
     eventHubOptions.Name,
     new DefaultAzureCredential());
 
+// Id for this session
+var sessionId = Guid.NewGuid();
+
 // Create a batch of events 
 using EventDataBatch eventBatch = await producerClient.CreateBatchAsync();
 
@@ -40,11 +43,12 @@ for (int i = 1; i <= numOfEvents; i++)
         Model = "dtmi:brewhub:sensors:TH;1",
         Metrics = new Metrics
         {
-            Temperature = 20 + i,
-            Humidity = 50 + i,
+            Temperature = 30 + i,
+            Humidity = 60 + i,
             TempCorrection = 0.05 * i,
             HumidityCorrection = 0.001 * i
-        }
+        },
+        SessionId = sessionId
     };
 
     if (!eventBatch.TryAdd(new EventData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message)))))
@@ -58,7 +62,7 @@ try
 {
     // Use the producer client to send the batch of events to the event hub
     await producerClient.SendAsync(eventBatch);
-    Console.WriteLine($"A batch of {numOfEvents} events has been published.");
+    Console.WriteLine($"A batch of {numOfEvents} events has been published for session {sessionId}.");
 }
 finally
 {

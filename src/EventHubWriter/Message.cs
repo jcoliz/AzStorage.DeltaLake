@@ -4,6 +4,7 @@ public record Message
     public int SequenceNumber { get; init; }
     public string Model { get; init; } = string.Empty;
     public Metrics Metrics { get; init; } = new();
+    public Guid SessionId { get; init; } = Guid.Empty;
 }
 
 public record Metrics
