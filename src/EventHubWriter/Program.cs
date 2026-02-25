@@ -19,14 +19,13 @@ var configuration = new ConfigurationBuilder()
     .AddTomlFile("config.toml", optional: true)
     .Build();
 
-
 var eventHubOptions = new EventHubOptions();
 configuration.Bind(EventHubOptions.Section, eventHubOptions);
 
 // The Event Hubs client types are safe to cache and use as a singleton for the lifetime
 // of the application, which is best practice when events are being published or read regularly.
 EventHubProducerClient producerClient = new EventHubProducerClient(
-    $"{eventHubOptions.Namespace}.servicebus.windows.net",
+    eventHubOptions.ServiceBusEndpoint,
     eventHubOptions.Name,
     new DefaultAzureCredential());
 
