@@ -47,6 +47,15 @@ module storageAccount '../../AzDeploy.Bicep/Storage/storage.bicep' = {
   }
 }
 
+// Provision storage container for data lake
+module storageContainer '../../AzDeploy.Bicep/Storage/storcontainer.bicep' = {
+  name: 'storageContainer'
+  params: {
+    account: storageAccount.outputs.storageName
+    name: 'datalake'
+  }
+}
+
 output eventHubNamespace string = eventHub.outputs.namespace
 output eventHubName string = eventHub.outputs.hub
 output serviceBusEndpoint string = eventHub.outputs.serviceBusEndpoint

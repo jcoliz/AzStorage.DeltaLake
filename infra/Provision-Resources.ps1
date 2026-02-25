@@ -1,10 +1,10 @@
 param(
-    [Parameter(Mandatory=$true)]
+    [Parameter()]
     [string]
-    $ResourceGroup,
-    [Parameter(Mandatory=$true)]
+    $ResourceGroup = "ehub-federation",
+    [Parameter()]
     [string]
-    $Location
+    $Location = "westus2"
 )
 
 try {
