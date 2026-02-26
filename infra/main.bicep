@@ -3,7 +3,12 @@
 //
 // Includes:
 //    * Azure Event Hub
-//    * Role assignment for Event Hub access
+//    * User Role assignment for Event Hub access
+//    * Azure Storage Account with hierarchical namespace enabled (Data Lake Storage Gen2)
+//    * Storage Container for data lake tables
+//    * Stream Analytics Job to read from Event Hub and write to Storage Account
+//    * ASA Role assignment for Storage Account writer access
+//    * ASA Role assignment for Event Hub reader access
 //
 
 @description('Primary location for all resources')
@@ -17,6 +22,8 @@ param principalId string = ''
 
 @description('The type of the given principal id')
 param principalType string = 'User' // Can be User, Group, or ServicePrincipal
+
+var containerName = 'datalake'
 
 // Provision event hub
 module eventHub './AzDeploy.Bicep/EventHub/ehub.bicep' = {
@@ -52,7 +59,106 @@ module storageContainer './AzDeploy.Bicep/Storage/storcontainer.bicep' = {
   name: 'storageContainer'
   params: {
     account: storageAccount.outputs.storageName
-    name: 'datalake'
+    name: containerName
+  }
+}
+
+// Provision user assigned managed identity for stream analytics job to use
+module streamingJobIdentity './AzDeploy.Bicep/ManagedIdentity/userassigned.bicep' = {
+  name: 'streamingJobIdentity'
+  params: {
+    suffix: suffix
+    location: location
+  }}
+
+// Assign 'Azure Event Hubs Data Receiver' role on event hub for the stream analytics job
+module eventHubDataReceiverRole './AzDeploy.Bicep/EventHub/datareceiverrole.bicep' = {
+  name: 'eventHubDataReceiverRole'
+  params: {
+    eventHubNamespaceName: eventHub.outputs.namespace
+    eventHubName: eventHub.outputs.hub
+    principalId: streamingJobIdentity.outputs.servicePrincipalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// Assign 'Storage Blob Data Contributor' role on storage account for the stream analytics job
+module storageBlobDataContributorRole './AzDeploy.Bicep/Storage/blobdatacontribroleusingparent.bicep' = {
+  name: 'storageBlobDataContributorRole'
+  params: {
+    storageAccountName: storageAccount.outputs.storageName
+    containerName: containerName
+    principalId: streamingJobIdentity.outputs.servicePrincipalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// Provision stream analytics job
+module streamingJobModule './AzDeploy.Bicep/StreamAnalytics/streamingjob.bicep' = {
+  name: 'streamingJobModule'
+  dependsOn: [
+    eventHubDataReceiverRole
+    storageBlobDataContributorRole
+  ]
+  params: {
+    suffix: suffix
+    location: location
+    identityName: streamingJobIdentity.outputs.identityName
+    inputs: [
+      {
+        name: 'Input'
+        properties: {
+          type: 'Stream'
+          datasource: {
+            type: 'Microsoft.ServiceBus/EventHub'
+            properties: {
+              consumerGroupName: ''
+              eventHubName: eventHub.outputs.hub
+              serviceBusNamespace: eventHub.outputs.namespace
+              authenticationMode: 'Msi'
+            }
+          }
+          compression: {
+            type: 'None'
+          }
+          serialization: {
+            type: 'Json'
+            properties: {
+              encoding: 'UTF8'
+            }
+          }
+        }
+      }
+    ]
+    outputs:  [
+      {
+        name: 'DataLake'
+        properties: {
+          datasource: {
+            type: 'Microsoft.Storage/Blob'
+            properties: {
+              storageAccounts: [
+                {
+                  accountName: storageAccount.outputs.storageName
+                }
+              ]
+              container: containerName
+              authenticationMode: 'Msi'
+            }
+          }
+          serialization: {
+            properties: {
+              deltaTablePath: 'metrics2'
+            }
+            type: 'Delta'
+          }
+          timeWindow: '00:00:30'
+          sizeWindow: 3
+        }
+      }
+    ]
+
+    query: 'SELECT\n\t*\nINTO\n\t[DataLake]\nFROM\n\t[Input]'
   }
 }
 
