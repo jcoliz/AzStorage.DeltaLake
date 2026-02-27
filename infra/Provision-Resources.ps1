@@ -1,7 +1,7 @@
 param(
     [Parameter()]
     [string]
-    $ResourceGroup = "ehub-federation",
+    $ResourceGroup = "rg-ehub-deltalake",
     [Parameter()]
     [string]
     $Location = "westus2"
