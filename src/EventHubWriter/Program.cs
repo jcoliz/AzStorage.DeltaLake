@@ -4,6 +4,7 @@
 using Azure.Identity;
 using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Producer;
+using DeltaLake.EventHubWriter.Options;
 using Microsoft.Extensions.Configuration;
 using System.Text;
 using System.Text.Json;

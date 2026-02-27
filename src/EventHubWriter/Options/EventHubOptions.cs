@@ -1,4 +1,4 @@
-namespace SyntheticTH;
+namespace DeltaLake.EventHubWriter.Options;
 
 public class EventHubOptions
 {

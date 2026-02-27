@@ -1,4 +1,4 @@
-namespace SyntheticTH;
+namespace SyntheticTH.Options;
 
 public class WorkerOptions
 {

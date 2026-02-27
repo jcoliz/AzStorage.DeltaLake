@@ -3,6 +3,7 @@ using Azure.Messaging.EventHubs.Producer;
 using Microsoft.Extensions.Options;
 using System.Text;
 using System.Text.Json;
+using SyntheticTH.Options;
 
 namespace SyntheticTH;
 

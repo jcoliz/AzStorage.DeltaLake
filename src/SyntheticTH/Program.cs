@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Azure.Messaging.EventHubs.Producer;
 using SyntheticTH;
+using SyntheticTH.Options;
 
 var builder = Host.CreateApplicationBuilder(args);
 

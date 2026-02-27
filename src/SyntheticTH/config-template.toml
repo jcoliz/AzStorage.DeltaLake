@@ -5,3 +5,11 @@ Name = "<instance_name>"
 [Worker]
 NumberOfMessages = 3
 DelayBetweenRuns = "00:05:00"
+
+# Options for authenticating to Azure services using a service principal
+# Alternately, can use ManagedIdentity or DefaultAzureCredential by omitting these values and configuring the environment accordingly
+
+[Identity]
+TenantId = "<tenant_id>" # Directory (tenant) ID
+AppId = "<client_id>" # Application (client) ID
+AppSecret = "<client_secret>" # Client secret value

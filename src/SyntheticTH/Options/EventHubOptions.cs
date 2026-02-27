@@ -1,3 +1,5 @@
+namespace SyntheticTH.Options;
+
 public class EventHubOptions
 {
     public static readonly string Section = "EventHub";
