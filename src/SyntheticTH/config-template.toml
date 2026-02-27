@@ -1,0 +1,7 @@
+[EventHub]
+ServiceBusEndpoint = "<namespace_url>"
+Name = "<instance_name>"
+
+[Worker]
+NumberOfMessages = 3
+DelayBetweenRuns = "00:05:00"
