@@ -1,3 +1,0 @@
-[EventHub]
-ServiceBusEndpoint = "<namespace_url>"
-Name = "<instance_name>"
