@@ -1,0 +1,58 @@
+# Git
+.git
+.gitignore
+.gitmodules
+
+# Documentation
+*.md
+docs/
+
+# Build outputs
+**/bin/
+**/obj/
+**/publish/
+
+# IDE and editor files
+.vs/
+.vscode/
+*.swp
+*.swo
+*~
+.idea/
+*.user
+*.suo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Azure and secrets
+src/SyntheticTH/config.toml
+src/SyntheticTH/appsettings.Development.json
+**/.azure/
+
+# Test files
+**/TestResults/
+
+# Infrastructure
+infra/
+
+# Other projects (we only need SyntheticTH)
+src/ASA/
+src/EventHubWriter/
+
+# Docker files
+docker/
+
+# NuGet packages
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+# Build cache
+**/.dotnet/
+**/.nuget/
+
+# Bicep solution file
+*.slnx

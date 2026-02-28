@@ -1,0 +1,35 @@
+services:
+  synthetic-th:
+    build:
+      context: ..
+      dockerfile: docker/SyntheticTH.dockerfile
+    image: synthetic-th:latest
+    container_name: synthetic-th
+    restart: unless-stopped
+    
+    # Mount configuration file
+    volumes:
+      - ./config.toml:/app/config.toml:ro
+    
+    # Alternative: Use environment variables for configuration
+    # Uncomment and configure as needed
+    # environment:
+    #   - DOTNET_ENVIRONMENT=Production
+    #   - EventHub__ServiceBusEndpoint=your-eventhub-namespace.servicebus.windows.net
+    #   - EventHub__Name=your-eventhub-name
+    #   - Identity__TenantId=00000000-0000-0000-0000-000000000000
+    #   - Identity__AppId=00000000-0000-0000-0000-000000000000
+    #   - Identity__AppSecret=your-app-secret
+    #   - Worker__NumberOfMessages=100
+    #   - Worker__DelayBetweenMessages=00:00:01
+    
+    # Or use environment file
+    # env_file:
+    #   - .env
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
