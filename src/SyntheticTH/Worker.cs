@@ -79,18 +79,18 @@ public partial class Worker(ILogger<Worker> logger, EventHubProducerClient produ
         await producerClient.SendAsync(eventBatch, cancellationToken);
     }
 
-    [LoggerMessage(LogLevel.Information, "Worker started with session ID: {sessionId}")]
+    [LoggerMessage(1, LogLevel.Information, "Worker started with session ID: {sessionId}")]
     private static partial void LogWorkerStarted(ILogger logger, Guid sessionId);
 
-    [LoggerMessage(LogLevel.Information, "Generated {count} messages. First message: {@message}")]
+    [LoggerMessage(2, LogLevel.Information, "Generated {count} messages. First message: {@message}")]
     private static partial void LogGeneratedMessages(ILogger logger, int count, THMessage? message);
 
-    [LoggerMessage(LogLevel.Error, "Error generating messages")]
+    [LoggerMessage(3, LogLevel.Error, "Error generating messages")]
     private static partial void LogErrorGeneratingMessages(ILogger logger, Exception ex);
 
-    [LoggerMessage(LogLevel.Information, "Worker running at: {time}")]
+    [LoggerMessage(4, LogLevel.Information, "Worker running at: {time}")]
     private static partial void LogWorkerRunning(ILogger logger, DateTimeOffset time);
 
-    [LoggerMessage(LogLevel.Information, "A batch of {count} events has been published for session {sessionId}")]
+    [LoggerMessage(5, LogLevel.Information, "A batch of {count} events has been published for session {sessionId}")]
     private static partial void LogBatchPublished(ILogger logger, int count, Guid sessionId);
 }
