@@ -10,6 +10,7 @@ namespace SyntheticTH;
 public partial class Worker(ILogger<Worker> logger, EventHubProducerClient producerClient, IOptions<WorkerOptions> options) : BackgroundService
 {
     private readonly Guid sessionId = Guid.NewGuid();
+    private int nextMessageSequenceNumber = 1;
     private readonly WorkerOptions _options = options.Value;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -41,7 +42,7 @@ public partial class Worker(ILogger<Worker> logger, EventHubProducerClient produ
         {
             yield return new THMessage
             {
-                SequenceNumber = i,
+                SequenceNumber = nextMessageSequenceNumber++,
                 Metrics = new THMetrics
                 {
                     Temperature = 30 + i,
