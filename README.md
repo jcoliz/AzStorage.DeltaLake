@@ -259,22 +259,15 @@ This project follows Azure security best practices:
   - Stream Analytics → Storage: "Blob Data Contributor" role
   - SyntheticTH → Event Hub: "Data Sender" role
 - **Managed Identities** - Used wherever possible (Stream Analytics, Container Apps)
-- **Service Principals** - Used for local Docker containers (with Key Vault in production)
+- **Service Principals** - Used for local Docker containers
 
 ## Development
 
-### Building
+### Local Build
 
 ```bash
 cd src/SyntheticTH
 dotnet build
-```
-
-### Testing
-
-```bash
-cd src/SyntheticTH
-dotnet test
 ```
 
 ### Docker Build
@@ -310,7 +303,6 @@ dotnet test
 
 - **[Infrastructure Setup](infra/README.md)** - Detailed provisioning guide with architecture diagrams
 - **[SyntheticTH Worker](src/SyntheticTH/README.md)** - Application configuration and deployment
-- **[Deployment Guide](docs/DEPLOY.md)** - Quick deployment reference
 
 ## Technology Stack
 
@@ -334,7 +326,3 @@ This project is available for reference and learning purposes.
 - [Delta Lake Documentation](https://delta.io/)
 - [Azure Data Lake Storage Gen2](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction)
 - [Azure Managed Identities](https://learn.microsoft.com/azure/active-directory/managed-identities-azure-resources/)
-
----
-
-**Questions or Issues?** Check the component-specific README files in each directory for detailed documentation.
