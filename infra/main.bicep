@@ -9,6 +9,8 @@
 //    * Stream Analytics Job to read from Event Hub and write to Storage Account
 //    * ASA Role assignment for Storage Account writer access
 //    * ASA Role assignment for Event Hub reader access
+//    * App Registration and Service Principal for Event Hub access from local development and docker container
+//    * Role assignment for Event Hub access to the above Service Principal 
 //
 
 @description('Primary location for all resources')
