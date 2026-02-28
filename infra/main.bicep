@@ -25,6 +25,15 @@ param principalType string = 'User' // Can be User, Group, or ServicePrincipal
 
 var containerName = 'datalake'
 
+// Provision event hub sender application and service principal
+module eventHubSenderApp './AzDeploy.Bicep/Entra/appsp.bicep' = {
+  name: 'eventHubSenderApp'
+  params: {
+    appDisplayName: 'app-${resourceGroup().name}-ehub-sender'
+    appDescription: 'Application and service principal used by docker container running locally to write to Event Hub'
+  }
+}
+
 // Provision event hub
 module eventHub './AzDeploy.Bicep/EventHub/ehub.bicep' = {
   name: 'eventHub'
@@ -34,13 +43,23 @@ module eventHub './AzDeploy.Bicep/EventHub/ehub.bicep' = {
   }
 }
 
-// Provision role assignment for Event Hub access
+// Provision user role assignment for owner Event Hub access, to enable debugging
 module roleAssignment './AzDeploy.Bicep/EventHub/dataownerrole.bicep' = if (principalId != '') {
   name: 'roleAssignment'
   params: {
     eventHubName: eventHub.outputs.namespace
     principalId: principalId
     principalType: principalType
+  }
+}
+
+// Provision event hub sender role assignment for the application
+module eventHubSenderRole './AzDeploy.Bicep/EventHub/datasenderrole.bicep' = {
+  name: 'eventHubSenderRole'
+  params: {
+    eventHubName: eventHub.outputs.namespace
+    principalId: eventHubSenderApp.outputs.servicePrincipalId
+    principalType: 'ServicePrincipal'
   }
 }
 
@@ -167,3 +186,4 @@ output eventHubName string = eventHub.outputs.hub
 output serviceBusEndpoint string = eventHub.outputs.serviceBusEndpoint
 output storageAccountName string = storageAccount.outputs.storageName
 output storageAccountDfsEndpoint string = storageAccount.outputs.storageEndpoint.dfs
+output senderAppId string = eventHubSenderApp.outputs.applicationId
