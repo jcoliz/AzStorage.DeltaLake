@@ -20,10 +20,10 @@ param location string = resourceGroup().location
 param suffix string = uniqueString(subscription().id,resourceGroup().id)
 
 @description('The id that will be given data owner permission for the Event Hubs namespace')
-param principalId string = ''
+param dataOwnerPrincipalId string = ''
 
 @description('The type of the given principal id')
-param principalType string = 'User' // Can be User, Group, or ServicePrincipal
+param dataOwnerPrincipalType string = 'User' // Can be User, Group, or ServicePrincipal
 
 var containerName = 'datalake'
 
@@ -45,13 +45,13 @@ module eventHub './AzDeploy.Bicep/EventHub/ehub.bicep' = {
   }
 }
 
-// Provision user role assignment for owner Event Hub access, to enable debugging
-module roleAssignment './AzDeploy.Bicep/EventHub/dataownerrole.bicep' = if (principalId != '') {
+// Provision role assignment for Event Hub access
+module roleAssignment './AzDeploy.Bicep/EventHub/dataownerrole.bicep' = if (dataOwnerPrincipalId != '') {
   name: 'roleAssignment'
   params: {
     eventHubName: eventHub.outputs.namespace
-    principalId: principalId
-    principalType: principalType
+    principalId: dataOwnerPrincipalId
+    principalType: dataOwnerPrincipalType
   }
 }
 

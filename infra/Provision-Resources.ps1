@@ -24,7 +24,7 @@ try {
     $SignedInUserId = az ad signed-in-user show --query "id" -o tsv
 
     Write-Output "Deploying to Resource Group $ResourceGroup"
-    $result = az deployment group create --name "Deploy-$(Get-Random)" --resource-group $ResourceGroup --template-file $PSScriptRoot/main.bicep --parameters principalId=$SignedInUserId | ConvertFrom-Json
+    $result = az deployment group create --name "Deploy-$(Get-Random)" --resource-group $ResourceGroup --template-file $PSScriptRoot/main.bicep --parameters dataOwnerPrincipalId=$SignedInUserId | ConvertFrom-Json
 
     if ($LASTEXITCODE -ne 0) {
         throw "Deployment failed."
