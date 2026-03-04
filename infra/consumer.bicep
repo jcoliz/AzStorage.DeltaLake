@@ -19,6 +19,8 @@ param officerPrincipalId string = ''
 @description('The type of the given principal id')
 param officerPrincipalType string = 'User' // Can be User, Group, or ServicePrincipal
 
+var appDisplayName = 'app-${resourceGroup().name}-consumer'
+
 // Deploy key vault
 module keyVault './AzDeploy.Bicep/Keyvault/keyvault.bicep' = {
   name: 'keyVault'
@@ -38,32 +40,26 @@ module secretsOfficerRole './AzDeploy.Bicep/Keyvault/secretsofficerrole.bicep' =
   }
 }
 
-// Create the consumer application and service principal 
+// Create the consumer application and service principal
 module consumerApp './AzDeploy.Bicep/Entra/appsp.bicep' = {
   name: 'consumerApp'
   params: {
-    appDisplayName: 'app-${resourceGroup().name}-consumer'
+    appDisplayName: appDisplayName
     appDescription: 'Application and service principal used by docker container running locally to read secrets from Key Vault'
   }
 }
 
-// Create client secret for the consumer application and store it in Key Vault
-module consumerAppSecret './AzDeploy.Bicep/Entra/appsecrettokeyvault.bicep' = {
-  name: 'consumerAppSecret'
-  params: {
-    appDisplayName: consumerApp.outputs.applicationId
-    keyVaultName: keyVault.outputs.name
-  }
-}
+// Output the key vault name
+output keyVaultName string = keyVault.outputs.name
 
 // Output the key vault endpoint
 output keyVaultEndpoint string = keyVault.outputs.endpoint 
+
+// Output the application display name
+output appDisplayName string = appDisplayName
 
 // Output the consumer application id
 output consumerApplicationId string = consumerApp.outputs.applicationId
 
 // Output the consumer service principal id
 output consumerServicePrincipalId string = consumerApp.outputs.servicePrincipalId
-
-// Output the secret identifier for the client secret stored in Key Vault
-output consumerAppClientSecretId string = consumerAppSecret.outputs.secretName
