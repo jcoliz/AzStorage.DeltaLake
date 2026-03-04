@@ -13,6 +13,6 @@ public record THMetrics
 {
     public double Temperature { get; init; }
     public double Humidity { get; init; }
-    public double TempCorrection { get; init; }
-    public double HumidityCorrection { get; init; }
+    public decimal TempCorrection { get; init; }
+    public decimal HumidityCorrection { get; init; }
 }

@@ -45,10 +45,10 @@ public partial class Worker(ILogger<Worker> logger, EventHubProducerClient produ
                 SequenceNumber = nextMessageSequenceNumber++,
                 Metrics = new THMetrics
                 {
-                    Temperature = 30 + i,
-                    Humidity = 60 + i,
-                    TempCorrection = 0.05 * i,
-                    HumidityCorrection = 0.001 * i
+                    Temperature = 30.0 + 0.5 * ( nextMessageSequenceNumber % 10),
+                    Humidity = 60.0 + 0.5 * (nextMessageSequenceNumber % 10),
+                    TempCorrection = 0.05m * nextMessageSequenceNumber,
+                    HumidityCorrection = 0.001m * nextMessageSequenceNumber
                 },
                 SessionId = sessionId
             };
