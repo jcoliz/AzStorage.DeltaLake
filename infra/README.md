@@ -10,13 +10,13 @@ The infrastructure provisions a complete data ingestion pipeline that streams da
 
 ```mermaid
 graph TB
-    subgraph "Identity & Access"
+    subgraph "Event Production"
         AppReg[App Registration<br/>ehub-sender]
         SP[Service Principal<br/>ehub-sender]
-        User[User/Principal<br/>Optional]
     end
 
     subgraph "Event Ingestion"
+        User[User/Principal<br/>Optional]
         EH[Event Hub Namespace<br/>& Event Hub]
     end
 
@@ -30,6 +30,10 @@ graph TB
         DeltaTable[Delta Lake Table<br/>metrics2]
     end
 
+    subgraph "Data Consumption"
+        Consumer[Service Principal]
+    end
+
     AppReg --> SP
     SP -->|Azure Event Hubs<br/>Data Sender| EH
     User -.->|Azure Event Hubs<br/>Data Owner| EH
@@ -38,12 +42,13 @@ graph TB
     ASA -->|Delta Output<br/>30s/3 items| Container
     Container --> DeltaTable
     SA --> Container
+    DeltaTable --> |Storage Account<br/>Blob Storage Reader| Consumer
 
-    classDef identity fill:#e1f5ff,stroke:#0078d4,stroke-width:2px
-    classDef compute fill:#fff4ce,stroke:#ffa500,stroke-width:2px
-    classDef storage fill:#e5f5e5,stroke:#107c10,stroke-width:2px
+    classDef identity fill:#cce7ff,stroke:#0078d4,stroke-width:2px,color:#000
+    classDef compute fill:#ffe6a0,stroke:#d97706,stroke-width:2px,color:#000
+    classDef storage fill:#c6e7c6,stroke:#107c10,stroke-width:2px,color:#000
     
-    class AppReg,SP,User identity
+    class AppReg,SP,User,Consumer identity
     class EH,ASA compute
     class SA,Container,DeltaTable storage
 ```

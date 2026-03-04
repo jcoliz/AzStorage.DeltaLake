@@ -10,6 +10,7 @@ This project showcases a production-ready data ingestion pipeline that:
 - **Streams** data through Azure Event Hubs
 - **Processes** data in real-time using Azure Stream Analytics
 - **Stores** data in Delta Lake format on Azure Data Lake Storage Gen2
+- **Enables** downstream consumption using specified Service Principal
 - **Uses** passwordless authentication throughout (Managed Identities and Service Principals with RBAC)
 
 ## Architecture
@@ -34,17 +35,22 @@ graph TB
         DeltaTable[Delta Lake Table<br/>metrics2]
     end
 
+    subgraph "Data Consumption"
+        Consumer[Downstream Consumer]
+    end
+
     SyntheticTH -->|Sends JSON<br/>Messages| EH
     EH -->|Stream Input| ASA
     ASA -->|Delta Format<br/>30s/3 items| Container
     Container --> DeltaTable
     SA --> Container
+    DeltaTable --> Consumer
 
-    classDef app fill:#e1f5ff,stroke:#0078d4,stroke-width:2px
-    classDef compute fill:#d4f5d4,stroke:#107c10,stroke-width:2px
-    classDef storage fill:#ffe6f0,stroke:#e3008c,stroke-width:2px
+    classDef app fill:#cce7ff,stroke:#0078d4,stroke-width:2px,color:#000
+    classDef compute fill:#b8e6b8,stroke:#107c10,stroke-width:2px,color:#000
+    classDef storage fill:#ffcce6,stroke:#c2185b,stroke-width:2px,color:#000
     
-    class SyntheticTH app
+    class SyntheticTH,Consumer app
     class EH,ASA compute
     class SA,Container,DeltaTable storage
 ```
