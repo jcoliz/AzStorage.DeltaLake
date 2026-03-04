@@ -35,7 +35,7 @@ public partial class Worker(ILogger<Worker> logger, EventHubProducerClient produ
         }
     }
 
-    private IEnumerable<THMessage> GenerateMessages(int count)
+    private IEnumerable<THMetrics> GenerateMessages(int count)
     {
 
         for (int i = 1; i <= count; i++)
@@ -52,7 +52,7 @@ public partial class Worker(ILogger<Worker> logger, EventHubProducerClient produ
         }
     }
 
-    private async Task SendMessagesToEventHubAsync(IEnumerable<THMessage> messages, CancellationToken cancellationToken = default)
+    private async Task SendMessagesToEventHubAsync(IEnumerable<THMetrics> messages, CancellationToken cancellationToken = default)
     {
         // Create a batch of events
         using EventDataBatch eventBatch = await producerClient.CreateBatchAsync(cancellationToken);
@@ -81,7 +81,7 @@ public partial class Worker(ILogger<Worker> logger, EventHubProducerClient produ
     private static partial void LogWorkerStarted(ILogger logger, Guid sessionId);
 
     [LoggerMessage(2, LogLevel.Information, "Generated {count} messages. First message: {@message}")]
-    private static partial void LogGeneratedMessages(ILogger logger, int count, THMessage? message);
+    private static partial void LogGeneratedMessages(ILogger logger, int count, THMetrics? message);
 
     [LoggerMessage(3, LogLevel.Error, "Error generating messages")]
     private static partial void LogErrorGeneratingMessages(ILogger logger, Exception ex);
