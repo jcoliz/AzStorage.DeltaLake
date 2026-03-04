@@ -196,7 +196,7 @@ module streamingJobModule './AzDeploy.Bicep/StreamAnalytics/streamingjob.bicep' 
       }
     ]
 
-    query: 'SELECT\n\t*\nINTO\n\t[DataLake]\nFROM\n\t[Input]'
+    query: 'SELECT\n\tCAST(TimeGenerated AS datetime) as TimeGenerated,\tSystem.Timestamp() AS TimeIngested,\n\t*\nINTO\n\t[DataLake]\nFROM\n\t[Input]'
   }
 }
 
