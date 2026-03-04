@@ -32,7 +32,7 @@ param dataReaderPrincipalId string = ''
 @description('The type of the given principal id')
 param dataReaderPrincipalType string = 'ServicePrincipal' // Can be User, Group, or ServicePrincipal
 
-var containerName = 'datalake'
+var containerName = 'silver'
 
 // Provision event hub sender application and service principal
 module eventHubSenderApp './AzDeploy.Bicep/Entra/appsp.bicep' = {
@@ -186,7 +186,7 @@ module streamingJobModule './AzDeploy.Bicep/StreamAnalytics/streamingjob.bicep' 
           }
           serialization: {
             properties: {
-              deltaTablePath: 'metrics2'
+              deltaTablePath: 'metrics3'
             }
             type: 'Delta'
           }

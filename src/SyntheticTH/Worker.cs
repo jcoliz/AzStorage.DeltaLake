@@ -40,16 +40,13 @@ public partial class Worker(ILogger<Worker> logger, EventHubProducerClient produ
 
         for (int i = 1; i <= count; i++)
         {
-            yield return new THMessage
+            yield return new THMetrics
             {
                 SequenceNumber = nextMessageSequenceNumber++,
-                Metrics = new THMetrics
-                {
-                    Temperature = 30.0 + 0.5 * ( nextMessageSequenceNumber % 10),
-                    Humidity = 60.0 + 0.5 * (nextMessageSequenceNumber % 10),
-                    TempCorrection = 0.05m * nextMessageSequenceNumber,
-                    HumidityCorrection = 0.001m * nextMessageSequenceNumber
-                },
+                Temperature = 30.0 + 0.5 * ( nextMessageSequenceNumber % 10),
+                Humidity = 60.0 + 0.5 * (nextMessageSequenceNumber % 10),
+                TempCorrection = 0.05m * nextMessageSequenceNumber,
+                HumidityCorrection = 0.001m * nextMessageSequenceNumber,
                 SessionId = sessionId
             };
         }
