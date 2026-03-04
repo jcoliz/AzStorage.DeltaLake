@@ -11,6 +11,7 @@
 //    * ASA Role assignment for Event Hub reader access
 //    * App Registration and Service Principal for Event Hub access from local development and docker container
 //    * Role assignment for Event Hub access to the above Service Principal 
+//    * Role assignment for Storage Account reader access to a designated Service Principal 
 //
 
 @description('Primary location for all resources')
@@ -24,6 +25,12 @@ param dataOwnerPrincipalId string = ''
 
 @description('The type of the given principal id')
 param dataOwnerPrincipalType string = 'User' // Can be User, Group, or ServicePrincipal
+
+@description('The id that will be given blob data reader permission for the Storage account')
+param dataReaderPrincipalId string = ''
+
+@description('The type of the given principal id')
+param dataReaderPrincipalType string = 'ServicePrincipal' // Can be User, Group, or ServicePrincipal
 
 var containerName = 'datalake'
 
@@ -83,6 +90,17 @@ module storageContainer './AzDeploy.Bicep/Storage/storcontainer.bicep' = {
     name: containerName
   }
 }
+
+// Assign 'Blob Storage Data Reader' role on event hub for the stream analytics job
+module storageDataReaderRole './AzDeploy.Bicep/Storage/blobdatareaderrole.bicep' = {
+  name: 'storageDataReaderRole'
+  params: {
+    storageAccountName: storageAccount.outputs.storageName
+    principalId: dataReaderPrincipalId
+    principalType: dataReaderPrincipalType
+  }
+}
+
 
 // Provision user assigned managed identity for stream analytics job to use
 module streamingJobIdentity './AzDeploy.Bicep/ManagedIdentity/userassigned.bicep' = {
