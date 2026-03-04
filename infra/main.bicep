@@ -91,7 +91,7 @@ module storageContainer './AzDeploy.Bicep/Storage/storcontainer.bicep' = {
   }
 }
 
-// Assign 'Blob Storage Data Reader' role on event hub for the stream analytics job
+// Assign 'Blob Storage Data Reader' role on storage account for the consuming service
 module storageDataReaderRole './AzDeploy.Bicep/Storage/blobdatareaderrole.bicep' = {
   name: 'storageDataReaderRole'
   params: {
@@ -100,7 +100,6 @@ module storageDataReaderRole './AzDeploy.Bicep/Storage/blobdatareaderrole.bicep'
     principalType: dataReaderPrincipalType
   }
 }
-
 
 // Provision user assigned managed identity for stream analytics job to use
 module streamingJobIdentity './AzDeploy.Bicep/ManagedIdentity/userassigned.bicep' = {
