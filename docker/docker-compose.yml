@@ -3,7 +3,7 @@ services:
     build:
       context: ..
       dockerfile: docker/SyntheticTH.dockerfile
-    image: synthetic-th:latest
+    image: ${REGISTRY_PREFIX:-}synthetic-th
     container_name: synthetic-th
     restart: unless-stopped
     
