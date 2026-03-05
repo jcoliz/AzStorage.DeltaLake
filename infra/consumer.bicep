@@ -4,7 +4,6 @@
 //    * App Registration, Service Principal, and Client Secret for consuming data from storage account
 //    * Key Vault to store client secret for above Service Principal
 //    * Key Vault Secrets Owner role assignment for designated principal (usually current user)
-//    * Store the client secret in Key Vault and output the secret identifier as an output of this module
 //
 
 @description('Primary location for all resources')

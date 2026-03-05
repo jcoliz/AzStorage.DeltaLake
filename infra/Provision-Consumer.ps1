@@ -7,6 +7,10 @@
 #
 
 param(
+    # Rwquired parameter: KeyConsumerPrincipalId - the principal ID of the consumer application that will be retrieving the application secret
+    [Parameter(Mandatory=$true)]
+    [string]
+    $KeyConsumerPrincipalId,
     [Parameter()]
     [string]
     $ResourceGroup = "rg-ehub-deltalake",
@@ -57,10 +61,18 @@ try {
     $secretValue = $secretResult.password
     $secretName = "${appDisplayName}-ClientSecret"
 
+    # Store the client secret in Key Vault using a Bicep template deployment
     $result = az deployment group create --name "Deploy-$(Get-Random)" --resource-group $ResourceGroup --template-file $PSScriptRoot/AzDeploy.Bicep/Keyvault/kvsecret.bicep --parameters keyVaultName=$keyVaultName secretName=$secretName secretValue=$secretValue | ConvertFrom-Json
 
     if ($LASTEXITCODE -ne 0) {
-        throw "Deployment failed."
+        throw "Failed to store client secret in Key Vault."
+    }
+
+    # Assign the Secrets User role to the consumer key reader service principal for the created secret
+    $result = az deployment group create --name "Deploy-$(Get-Random)" --resource-group $ResourceGroup --template-file $PSScriptRoot/AzDeploy.Bicep/Keyvault/secretsuseronsecretrole.bicep --parameters keyVaultName=$keyVaultName keyName=$secretName principalId=$KeyConsumerPrincipalId | ConvertFrom-Json
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to assign Secrets User role to the consumer key reader service principal."
     }
 
     Write-Output "Retain these values to configure the consumer application:"
