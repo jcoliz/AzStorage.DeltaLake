@@ -219,7 +219,7 @@ module containerAppWithEnv './AzDeploy.Bicep/App/containerAppWithEnvironment.bic
     env: [
       {
         name: 'EventHub__ServiceBusEndpoint'
-        secretRef: eventHub.outputs.serviceBusEndpoint
+        value: eventHub.outputs.serviceBusEndpoint
       }
       {
         name: 'EventHub__Name'
