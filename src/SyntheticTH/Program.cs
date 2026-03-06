@@ -3,6 +3,7 @@ using Azure.Identity;
 using Azure.Messaging.EventHubs.Producer;
 using SyntheticTH;
 using SyntheticTH.Options;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -28,14 +29,21 @@ builder.Services.AddSingleton(serviceProvider =>
 {
     var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
+    // Extract just the hostname from the ServiceBusEndpoint (may be full URL or just hostname)
+    var fullyQualifiedNamespace = eventHubOptions.ServiceBusEndpoint;
+    if (Uri.TryCreate(eventHubOptions.ServiceBusEndpoint, UriKind.Absolute, out var uri))
+    {
+        fullyQualifiedNamespace = uri.Host;
+    }
+
     logger
         .LogInformation("Creating EventHubProducerClient with Event Hub Namespace: {Namespace}, Event Hub Name: {EventHubName}",
-            eventHubOptions.ServiceBusEndpoint, eventHubOptions.Name);
+            fullyQualifiedNamespace, eventHubOptions.Name);
 
     var credential = GetTokenCredential(identityOptions,logger);
     
     return new EventHubProducerClient(
-        eventHubOptions.ServiceBusEndpoint,
+        fullyQualifiedNamespace,
         eventHubOptions.Name,
         credential);
 });
@@ -48,6 +56,8 @@ await host.RunAsync();
 
 static TokenCredential GetTokenCredential(IdentityOptions identityOptions, ILogger logger)
 {
+    logger.LogInformation("R5: Determining TokenCredential to use for EventHubProducerClient...");
+    
     // 1. If there is an IdentityOptions filled out, create a ClientSecretCredential and use that
     if (identityOptions.TenantId != Guid.Empty &&
         identityOptions.AppId != Guid.Empty &&
@@ -62,20 +72,42 @@ static TokenCredential GetTokenCredential(IdentityOptions identityOptions, ILogg
             identityOptions.AppSecret);
     }
 
-    // 2. If a Managed Identity credential is available, use that
-    try
+    // 2. Check if running in Azure Container Apps (CONTAINER_APP_NAME is set)
+    var containerAppName = Environment.GetEnvironmentVariable("CONTAINER_APP_NAME");
+    if (!string.IsNullOrEmpty(containerAppName))
     {
-        var managedIdentityCredential = new ManagedIdentityCredential();
-        // Test if managed identity is available by attempting to get a token
-        // This will throw if managed identity is not available
-        var tokenRequestContext = new TokenRequestContext(new[] { "https://eventhubs.azure.net/.default" });
-        var token = managedIdentityCredential.GetToken(tokenRequestContext, default);
-        logger.LogInformation("Using ManagedIdentityCredential, token expires on: {ExpiresOn}", token.ExpiresOn);
-        return managedIdentityCredential;
-    }
-    catch
-    {
-        // Managed identity not available, fall through to default
+        logger.LogInformation("Running in Azure Container Apps ({ContainerApp}), using ManagedIdentityCredential", containerAppName);
+        var credential = new ManagedIdentityCredential();
+        
+        // Diagnostic: Get a token and log its claims to troubleshoot "InvalidIssuer" error
+        try
+        {
+            var tokenContext = new TokenRequestContext(new[] { "https://eventhubs.azure.net/.default" });
+            var token = credential.GetToken(tokenContext, default);
+            logger.LogInformation("Token acquired successfully. Expires: {ExpiresOn}", token.ExpiresOn);
+            
+            // Decode the JWT token to see its claims
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token.Token);
+            
+            logger.LogInformation("Token Claims:");
+            foreach (var claim in jwtToken.Claims)
+            {
+                logger.LogInformation("  {Type}: {Value}", claim.Type, claim.Value);
+            }
+            
+            // Specifically highlight important claims
+            logger.LogInformation("Key Token Details:");
+            logger.LogInformation("  Issuer (iss): {Issuer}", jwtToken.Issuer);
+            logger.LogInformation("  Audiences (aud): {Audiences}", string.Join(", ", jwtToken.Audiences));
+            logger.LogInformation("  Subject (sub): {Subject}", jwtToken.Subject);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error decoding token for diagnostics");
+        }
+        
+        return credential;
     }
 
     // 3. Use DefaultAzureCredential as a fall-back
