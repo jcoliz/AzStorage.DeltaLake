@@ -18,6 +18,8 @@ public partial class Worker(ILogger<Worker> logger, EventHubProducerClient produ
         LogWorkerStarted(logger, sessionId);
         while (!stoppingToken.IsCancellationRequested)
         {
+            var delayTask = Task.Delay(_options.DelayBetweenRuns, stoppingToken);
+
             try
             {
                 var messages = GenerateMessages(_options.NumberOfMessages).ToList();
@@ -31,13 +33,12 @@ public partial class Worker(ILogger<Worker> logger, EventHubProducerClient produ
                 LogErrorGeneratingMessages(logger, ex);
             }
 
-            await Task.Delay(_options.DelayBetweenRuns, stoppingToken);
+            await delayTask;
         }
     }
 
     private IEnumerable<THMetrics> GenerateMessages(int count)
     {
-
         for (int i = 1; i <= count; i++)
         {
             yield return new THMetrics
