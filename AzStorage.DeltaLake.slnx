@@ -1,8 +1,3 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="src/SyntheticTH/SyntheticTH.csproj" />
-  </Folder>
-  <Folder Name="/src/EventHubWriter/">
-    <Project Path="src/EventHubWriter/DeltaLake.EventHubWriter.csproj" />
-  </Folder>
+  <Project Path="src/SyntheticTH/SyntheticTH.csproj" />
 </Solution>

@@ -34,6 +34,14 @@ param dataReaderPrincipalType string = 'ServicePrincipal' // Can be User, Group,
 
 var containerName = 'silver'
 
+// Deploy Provision Log Analytics Workspace for app logs (and later ASA logs)
+module applogs './AzDeploy.Bicep/OperationalInsights/loganalytics.bicep' = {
+  params: {
+    suffix: suffix
+    location: location
+  }
+}
+
 // Provision event hub sender application and service principal
 module eventHubSenderApp './AzDeploy.Bicep/Entra/appsp.bicep' = {
   name: 'eventHubSenderApp'
@@ -197,6 +205,41 @@ module streamingJobModule './AzDeploy.Bicep/StreamAnalytics/streamingjob.bicep' 
     ]
 
     query: 'SELECT\n\tCAST(TimeGenerated AS datetime) as TimeGenerated,\tSystem.Timestamp() AS TimeIngested,\n\t*\nINTO\n\t[DataLake]\nFROM\n\t[Input]'
+  }
+}
+
+// Create an Azure Container App with a container to send data to the event hub, using the above created service principal for authentication. This can be used for testing and demo purposes, and can be deployed to a local Azure Container Apps environment or to the cloud.
+module containerAppWithEnv './AzDeploy.Bicep/App/containerAppWithEnvironment.bicep' = {
+  name: 'containerAppWithEnv'
+  params: {
+    suffix: suffix
+    location: location
+    logAnalyticsName: applogs.outputs.name
+    webImageName: 'jcoliz/synthetic-th:latest'
+    env: [
+      {
+        name: 'EventHub__ServiceBusEndpoint'
+        secretRef: eventHub.outputs.serviceBusEndpoint
+      }
+      {
+        name: 'EventHub__Name'
+        value: eventHub.outputs.hub
+      }
+      {
+        name: 'Worker__DelayBetweenRuns'
+        value: '00:00:30'
+      }
+    ]
+  }
+}
+
+// Assign 'Azure Event Hubs Data Sender' role on event hub for the container app
+module containerAppEventHubSenderRole './AzDeploy.Bicep/EventHub/datasenderrole.bicep' = {
+  name: 'containerAppEventHubSenderRole'
+  params: {
+    eventHubName: eventHub.outputs.namespace
+    principalId: containerAppWithEnv.outputs.principal
+    principalType: 'ServicePrincipal'
   }
 }
 
