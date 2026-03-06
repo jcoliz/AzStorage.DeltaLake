@@ -100,7 +100,7 @@ module storageContainer './AzDeploy.Bicep/Storage/storcontainer.bicep' = {
 }
 
 // Assign 'Blob Storage Data Reader' role on storage account for the consuming service
-module storageDataReaderRole './AzDeploy.Bicep/Storage/blobdatareaderrole.bicep' = {
+module storageDataReaderRole './AzDeploy.Bicep/Storage/blobdatareaderrole.bicep' = if (dataReaderPrincipalId != '') {
   name: 'storageDataReaderRole'
   params: {
     storageAccountName: storageAccount.outputs.storageName
