@@ -26,7 +26,13 @@ builder.Services.Configure<WorkerOptions>(
 // of the application, which is best practice when events are being published or read regularly.
 builder.Services.AddSingleton(serviceProvider =>
 {
-    var credential = GetTokenCredential(identityOptions);
+    var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+
+    logger
+        .LogInformation("Creating EventHubProducerClient with Event Hub Namespace: {Namespace}, Event Hub Name: {EventHubName}",
+            eventHubOptions.ServiceBusEndpoint, eventHubOptions.Name);
+
+    var credential = GetTokenCredential(identityOptions,logger);
     
     return new EventHubProducerClient(
         eventHubOptions.ServiceBusEndpoint,
@@ -40,13 +46,16 @@ var host = builder.Build();
 
 await host.RunAsync();
 
-static TokenCredential GetTokenCredential(IdentityOptions identityOptions)
+static TokenCredential GetTokenCredential(IdentityOptions identityOptions, ILogger logger)
 {
     // 1. If there is an IdentityOptions filled out, create a ClientSecretCredential and use that
     if (identityOptions.TenantId != Guid.Empty &&
         identityOptions.AppId != Guid.Empty &&
         !string.IsNullOrWhiteSpace(identityOptions.AppSecret))
     {
+        logger.LogInformation("Using ClientSecretCredential with TenantId: {TenantId}, AppId: {AppId}",
+            identityOptions.TenantId, identityOptions.AppId);
+
         return new ClientSecretCredential(
             identityOptions.TenantId.ToString(),
             identityOptions.AppId.ToString(),
@@ -59,8 +68,9 @@ static TokenCredential GetTokenCredential(IdentityOptions identityOptions)
         var managedIdentityCredential = new ManagedIdentityCredential();
         // Test if managed identity is available by attempting to get a token
         // This will throw if managed identity is not available
-        var tokenRequestContext = new TokenRequestContext(new[] { "https://management.azure.com/.default" });
-        _ = managedIdentityCredential.GetToken(tokenRequestContext, default);
+        var tokenRequestContext = new TokenRequestContext(new[] { "https://eventhubs.azure.net/.default" });
+        var token = managedIdentityCredential.GetToken(tokenRequestContext, default);
+        logger.LogInformation("Using ManagedIdentityCredential, token expires on: {ExpiresOn}", token.ExpiresOn);
         return managedIdentityCredential;
     }
     catch
@@ -69,5 +79,6 @@ static TokenCredential GetTokenCredential(IdentityOptions identityOptions)
     }
 
     // 3. Use DefaultAzureCredential as a fall-back
+    logger.LogInformation("Using DefaultAzureCredential");
     return new DefaultAzureCredential();
 }
